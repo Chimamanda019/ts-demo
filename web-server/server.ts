@@ -11,11 +11,13 @@ const users: Record<string, UserProfile> = {
     "somkeme": { name: "Somkeme", role: "Developer" }
 };
 
-const server = http.createServer((req: http.IncomingMessage, res: http.ServerResponse) => {
+const server = http.createServer(innerServer);
+
+function innerServer(req: http.IncomingMessage, res: http.ServerResponse){
     // FIX: Provide a fallback string and a dummy base URL so it never throws a syntax crash error
     const parsedUrl = new URL(req.url || '', 'http://localhost');
     
-    const searchParams = parsedUrl.searchParams;       // Holds query data
+    const searchParams = parsedUrl.searchParams;       // Holds query data and extracts it
 
     // BASE ROUTE: If they are on the home page or just hit /user without parameters
     if (!searchParams.has('name')) {
@@ -70,7 +72,8 @@ const server = http.createServer((req: http.IncomingMessage, res: http.ServerRes
     // FALLBACK 404: For any other completely broken paths (like /gallery or /settings)
     res.writeHead(404, { 'Content-Type': 'text/html' });
     res.end('<h1>404 Page Not Found</h1>');
-});
+}
+
 
 const PORT = 3000;
 server.listen(PORT, () => {
